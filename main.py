@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 from mpmath import *
 from secrets import choice
-import csv
-import sys
 from tkinter import filedialog
 from tkinter import *
 
@@ -79,15 +77,11 @@ def step_1(string_in_before, key_calc, count, hin):
                 zu = choice(Werte[:Buchstaben.index(x)+1])
                 zu1 = Werte[Buchstaben.index(x)]-zu
                 string_out.append([Buchstaben[zu], Buchstaben[zu1]])
-                if (zu + zu1) != Buchstaben_dict[x]:
-                    sys.exit(1)
             else:
                 zu1 = choice(Werte[:Buchstaben.index(x)+1])
                 zu2 = choice(Werte[:Buchstaben.index(x)-zu1+1])
                 zu3 = Werte[Buchstaben.index(x)]-(zu1+zu2)
                 string_out.append([Buchstaben[zu1], Buchstaben[zu2], Buchstaben[zu3]])
-                if (zu1 + zu2 + zu3) != Buchstaben_dict[x]:
-                    sys.exit(1)
             z+=1
     else:
         try:
