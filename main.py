@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 from mpmath import *
 from secrets import choice
-from tkinter import filedialog
-from tkinter import messagebox as mb
-from tkinter import *
-from tkinter.ttk import Progressbar
 import os
+if __name__ == "__main__":
+    from tkinter import filedialog
+    from tkinter import messagebox as mb
+    from tkinter import *
+    from tkinter.ttk import Progressbar
 
 key_size=26
 cluster_size = 100
@@ -420,8 +421,11 @@ def success_label_show():
     mb.showinfo(title="Successful", message="The crypting process was successful.")
 
 def update_progressbar():
-    progress["value"] += 1
-    progress.update_idletasks()
+    try:
+        progress["value"] += 1
+        progress.update_idletasks()
+    except Exception:
+        pass
 
 if __name__ == "__main__":
     root = Tk()
