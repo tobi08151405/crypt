@@ -2,7 +2,10 @@
 from mpmath import *
 from secrets import choice
 from tkinter import filedialog
+from tkinter import messagebox as mb
 from tkinter import *
+from tkinter.ttk import Progressbar
+import os
 
 key_size=26
 cluster_size = 100
@@ -41,7 +44,7 @@ def sum_d(n):
     return r
 
 def calc_key(key_list, key_in, count):
-    count_ = count % (mp.dps - 1)
+    count_ = count % cluster_size
     if sum_d(int(key_in)) % 2 == 0:
         p1 = int(str(mpf(mpf(keys_list[0])-int(keys_list[0])))[2:][count_])
         p2 = int(str(mpf(mpf(keys_list[1])-int(keys_list[1])))[2:][count_])
@@ -60,8 +63,6 @@ def calc_key(key_list, key_in, count):
         key_calc_.append(x)
     for x in key_calc_[key_calc_.index(".")+1:]:
         key_calc.append(int(x))
-    if key_calc == []:
-        pdb.set_trace()
     return key_calc
 
 def step_1(string_in_before, key_calc, count, hin):
@@ -69,7 +70,8 @@ def step_1(string_in_before, key_calc, count, hin):
     string_out=[]
     if hin:
         z=0
-        for x in string_in:
+        for a in string_in:
+            x = int.to_bytes(a, 1, 'little')
             zahl = key_calc[z]
             if (0 <= zahl) & (zahl <= 2):
                 string_out.append([x])
@@ -83,6 +85,7 @@ def step_1(string_in_before, key_calc, count, hin):
                 zu3 = Werte[Buchstaben.index(x)]-(zu1+zu2)
                 string_out.append([Buchstaben[zu1], Buchstaben[zu2], Buchstaben[zu3]])
             z+=1
+            update_progressbar()
     else:
         try:
             string_out_ = []
@@ -91,6 +94,7 @@ def step_1(string_in_before, key_calc, count, hin):
                 for bruchteil in string_in[x]:
                     wert_current += Buchstaben_dict[bruchteil]
                 string_out.append(Werte_dict[wert_current])
+                update_progressbar()
         except:
             pass
     return string_out
@@ -109,24 +113,23 @@ def step_2(string_in_before, key_calc, count, hin):
                 except KeyError:
                     string_out.append(Werte_dict[Buchstaben_dict[zeichen_teil]+vf-len(Buchstaben)])
             rotate_list_auszen=rotate(rotate_list_auszen, 1)
+            update_progressbar()
     else:
-        try:
-            rotate_list_auszen = rotate_list_auszen_.copy()
-            rotate_list_innen = rotate_list_innen_.copy()
-            string_in.reverse()
-            rotate_list_auszen=rotate(rotate_list_auszen, len(string_in)%10)
-            
-            for zeichen_stelle in range(len(string_in)):
-                rotate_list_auszen=rotate(rotate_list_auszen, -1)
-                vf=rotate_list_auszen[rotate_list_innen.index(key_calc[(len(string_in)-zeichen_stelle)-1])]
-                buchstabe_cur = []
-                for zeichen_teil in string_in[zeichen_stelle]:
-                    buchstabe_cur.append(Buchstaben[Buchstaben_dict[zeichen_teil]-vf])
-                string_out.append(buchstabe_cur)
-            
-            string_out.reverse()
-        except Exception:
-            pdb.post_mortem()
+        rotate_list_auszen = rotate_list_auszen_.copy()
+        rotate_list_innen = rotate_list_innen_.copy()
+        string_in.reverse()
+        rotate_list_auszen=rotate(rotate_list_auszen, len(string_in)%10)
+        
+        for zeichen_stelle in range(len(string_in)):
+            rotate_list_auszen=rotate(rotate_list_auszen, -1)
+            vf=rotate_list_auszen[rotate_list_innen.index(key_calc[(len(string_in)-zeichen_stelle)-1])]
+            buchstabe_cur = []
+            for zeichen_teil in string_in[zeichen_stelle]:
+                buchstabe_cur.append(Buchstaben[Buchstaben_dict[zeichen_teil]-vf])
+            string_out.append(buchstabe_cur)
+            update_progressbar()
+        
+        string_out.reverse()
     
     return string_out
 
@@ -143,7 +146,8 @@ def step_4(string_in):
                 string_out[x], string_out[x+1] = string_out[x+1], string_out[x]
             except IndexError:
                 pass
-    return string_out
+        update_progressbar()
+        return string_out
 
 def step_5(string_in, hin):
     string_out=[]
@@ -156,12 +160,14 @@ def step_5(string_in, hin):
                     string_out.append(Buchstaben[int(Buchstaben.index(string_in[x]))+1-len(Buchstaben)])
             else:
                 string_out.append(string_in[x])
+            update_progressbar()
     else:
         for x in range(len(string_in)):
             if (x+1) % 2 == 0:
-                string_out.append(Buchstaben[int(Buchstaben.index(string_in[x][0]))-1])
+                string_out.append(Buchstaben[int(Buchstaben.index(int.to_bytes(string_in[x][0], 1, 'little')))-1])
             else:
-                string_out.append(string_in[x][0])
+                string_out.append(int.to_bytes(string_in[x][0], 1, 'little'))
+            update_progressbar()
     return string_out
 
 def step_6(string_in, hin):
@@ -338,20 +344,24 @@ def valid_key(key):
         return False
 
 def crypt():
-    string_in=[]
+    progress.grid(row=9,column=0,columnspan=2)
+    progress["value"] = 0
     if input_type.get():
-        with open(input_string_entry.get(), "rb") as f:
-            byte = f.read(1)
-            while byte:
-                string_in.append(byte)
-                byte = f.read(1)
+        file_ = input_string_entry.get()
+        progress["maximum"] = int(4.5*os.path.getsize(file_))
+        f = open(file_, "rb")
+        string_in = f.read()
     else:
-        for byte in input_string_entry.get():
-            string_in.append(bytes(byte, 'utf-8'))
+        string_ = input_string_entry.get()
+        progress["maximum"] = int(4.5*len(string_))
+        string_in=[]
+        for byte in string_:
+            string_in.append(bytes(byte, 'utf-8')[0])
+    
     key_in = key_string_entry.get()
     key=valid_key(key_in)
     if key == False:
-        print(key,len(key),key_in,len(key_in))
+        mb.showerror(title="key length not correct", message="The entered key is too small or too big. It should be "+str(key_size)+" characters long.")
         raise ValueError
     output.config(state="normal")
     output.delete(1.0,END)
@@ -361,11 +371,8 @@ def crypt():
         temp = zuruck_ohne_6_7(key, key_in, string_in)
     if input_type.get():
         f = open(output_file.get(), "wb")
-        try:
-            for byte in temp:
-                f.write(byte)
-        except:
-            pdb.post_mortem()
+        for byte in temp:
+            f.write(byte)
         f.close()
     else:
         temp_=""
@@ -374,6 +381,7 @@ def crypt():
         output.insert(1.0,temp_)
         output.config(state="disabled")
     root.after(0, success_label_show)
+
 
 def select_file():
     file_name = filedialog.askopenfilename(title="Select File")#,initialdir="~")
@@ -409,8 +417,11 @@ def copy_key():
     root.clipboard_append(str(key_string_entry.get()))
     
 def success_label_show():
-    success_label.grid(row=9,column=0,columnspan=2)
-    root.after(2000, success_label.grid_forget)
+    mb.showinfo(title="Successful", message="The crypting process was successful.")
+
+def update_progressbar():
+    progress["value"] += 1
+    progress.update_idletasks()
 
 if __name__ == "__main__":
     root = Tk()
@@ -437,7 +448,7 @@ if __name__ == "__main__":
     output_file = Entry(root, width=50)
     output_file_button = Button(root,text="Choose",command=select_save_file)
     Button(root, text="Quit", command=root.destroy).grid(row=8,column=0,columnspan=2)
-    success_label = Label(root, text="En-/Decrypt successful", fg="green")
+    progress = Progressbar(root, orient="horizontal", length=int(root.winfo_reqwidth()*2), mode="determinate")
     
     string_type()
     
