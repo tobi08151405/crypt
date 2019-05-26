@@ -1,1 +1,1 @@
-teichicrypt/__init__.py
+teichicrypt/__main__.py
