@@ -504,7 +504,7 @@ def main():
     global filedialog, END, TK, Entry, Button, Radiobutton, BooleanVar, Label, Text, root, mb
     global input_type, input_string_entry, key_string_entry, crypt_type, output, output_file_label, output_file, output_file_button, progress
     root = Tk()
-    root.title("Crypt")
+    root.title("Teichicrypt")
     input_type = BooleanVar()
     input_type.set(False)
     Radiobutton(root, variable=input_type, text="String", value=False, command=_string_type).grid(row=0,column=0)
