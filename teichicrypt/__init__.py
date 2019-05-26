@@ -5,11 +5,6 @@ name = "teichicrypt"
 from mpmath import *
 from secrets import choice
 import os
-if __name__ == "__main__":
-    from tkinter import filedialog
-    from tkinter import messagebox as mb
-    from tkinter import *
-    from tkinter.ttk import Progressbar
 
 key_size=26
 cluster_size = 100
@@ -273,7 +268,7 @@ def conversion(string_in, input_format, output_format, key=None, key_in=None):
             string_out = []
             for count in range(int(len(string_in)/cluster_size)+1):
                 try:
-                    key_used = _calc_key(key, key_in, count)[:cluster_size]
+                    key_used = calc_key(key, key_in, count)[:cluster_size]
                 except:
                     break
                 string_out.append([])
@@ -351,7 +346,7 @@ def encrypt_without_6_7(key, key_in, string_begin):
     string_2=[]
 
     for count in range(len(string_begin_1)):
-        key_calc=_calc_key(key, key_in, count)
+        key_calc=calc_key(key, key_in, count)
         string_1.append(step_1(string_begin_1, key_calc, count, encrypt=True))
         string_2.append(step_2(string_1, key_calc, count, encrypt=True))
 
@@ -381,7 +376,7 @@ def decrypt_without_6_7(key, key_in, string_begin):
     string_2=[]
     string_1=[]
     for count in range(len(string_2_begin)):
-        key_calc=_calc_key(key, key_in, count)
+        key_calc=calc_key(key, key_in, count)
         string_2.append(step_2(string_2_begin, key_calc, count, encrypt=False))
         string_1.append(step_1(string_2, key_calc, count, encrypt=False))
 
@@ -501,7 +496,13 @@ def _update_progressbar():
     except Exception:
         pass
 
-if __name__ == "__main__":
+def main():
+    from tkinter import filedialog
+    from tkinter import messagebox as mb
+    from tkinter import Tk, Entry, Button, Radiobutton, BooleanVar, Label, Text, END
+    from tkinter.ttk import Progressbar
+    global filedialog, END, TK, Entry, Button, Radiobutton, BooleanVar, Label, Text, root, mb
+    global input_type, input_string_entry, key_string_entry, crypt_type, output, output_file_label, output_file, output_file_button, progress
     root = Tk()
     root.title("Crypt")
     input_type = BooleanVar()
@@ -531,3 +532,6 @@ if __name__ == "__main__":
     _string_type()
     
     root.mainloop()
+
+if __name__ == "__main__":
+    main()

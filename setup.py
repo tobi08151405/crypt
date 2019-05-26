@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="teichicrypt",
-    version="1.1.1",
+    version="1.2.0",
     author="Teichi",
     author_email="tobias@teichmann.top",
     description="self build crypting algorithm",
