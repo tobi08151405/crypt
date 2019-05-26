@@ -10,4 +10,4 @@ When run as main, a tkinter window for easy usage will open, else use the subrou
   * implementation as command-line tool
   * ...
 ## Github-Repo
-[https://github.com/tobi08151405/teichicrypt]
+https://github.com/tobi08151405/teichicrypt
